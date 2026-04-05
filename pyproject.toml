@@ -13,6 +13,15 @@ dependencies = [
 [project.scripts]
 xamlgen = "cpmf_uips_xamlgen.cli:app"
 
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: marks tests that require real catalog fixtures (deselect with -m 'not integration')",
+]
+
 [tool.hatch.version]
 path = "src/cpmf_uips_xamlgen/__version__.py"
 
