@@ -57,9 +57,7 @@ The scaffold output describes one activity:
       "direction": "In",
       "dataType": "UiPath.Core.Activities.LogLevel",
       "required": true,
-      "typeConverter": null,
-      "enumValues": ["LogLevel.Trace", "LogLevel.Info", "LogLevel.Warn", "LogLevel.Error"],
-      "value": null        // ← caller fills this in
+      "enumValues": ["LogLevel.Trace", "LogLevel.Info", "LogLevel.Warn", "LogLevel.Error"]
     },
     {
       "name": "Message",
@@ -67,9 +65,7 @@ The scaffold output describes one activity:
       "direction": "In",
       "dataType": "System.String",
       "required": true,
-      "typeConverter": "InArgument`1",
-      "enumValues": null,
-      "value": null        // ← caller fills this in
+      "enumValues": null
     }
   ]
 }
