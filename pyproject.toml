@@ -6,7 +6,12 @@ build-backend = "hatchling.build"
 name = "cpmf-uips-xamlgen"
 dynamic = ["version"]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "typer>=0.24.1",
+]
+
+[project.scripts]
+xamlgen = "cpmf_uips_xamlgen.cli:app"
 
 [tool.hatch.version]
 path = "src/cpmf_uips_xamlgen/__version__.py"
