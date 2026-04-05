@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/v0.1/xamlgen-scaffold-output.schema.json",
   "title": "XamlGen Scaffold Output",
-  "description": "Output of the scaffold step. Describes what a specific activity requires. The caller reads the argument descriptors and constructs an ActivityNode for the generate input, supplying expression strings (In/InOut) or variable names (Out) for each argument they wish to set.",
+  "description": "Output of the scaffold step. Describes what a specific activity requires. The caller reads the argument and slot descriptors and constructs an ActivityNode for the generate input.",
   "type": "object",
-  "required": ["activityId", "fullName", "displayName", "arguments"],
+  "required": ["activityId", "fullName", "displayName", "arguments", "slots"],
   "additionalProperties": false,
   "properties": {
 
@@ -31,8 +31,14 @@
 
     "arguments": {
       "type": "array",
-      "description": "Ordered list of argument descriptors. Each entry describes one argument the activity accepts. The caller uses name as the key and supplies a value in the generate input ActivityNode.arguments object.",
+      "description": "Argument descriptors (catalog members with memberKind 'argument'). The caller uses name as the key and supplies an expression string (In/InOut) or variable name (Out) in the generate input ActivityNode.arguments object.",
       "items": { "$ref": "#/$defs/ArgumentDescriptor" }
+    },
+
+    "slots": {
+      "type": "array",
+      "description": "Structural child slot descriptors (catalog members with memberKind 'child'). The caller uses name as the key in the generate input ActivityNode.slots object and supplies a Node.",
+      "items": { "$ref": "#/$defs/SlotDescriptor" }
     }
 
   },
@@ -80,6 +86,35 @@
           "type": ["array", "null"],
           "description": "Valid values when dataType is an enum, expressed as 'EnumTypeName.MemberName'. null for non-enum types.",
           "items": { "type": "string" }
+        }
+
+      }
+    },
+
+    "SlotDescriptor": {
+      "type": "object",
+      "required": ["name", "displayName", "required"],
+      "additionalProperties": false,
+      "properties": {
+
+        "name": {
+          "type": "string",
+          "description": "CLR property name. Use as the key in the generate input ActivityNode.slots object."
+        },
+
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable slot name (from catalog member.displayName)."
+        },
+
+        "required": {
+          "type": "boolean",
+          "description": "Whether this slot must be supplied in the generate input."
+        },
+
+        "description": {
+          "type": ["string", "null"],
+          "description": "Slot description from the catalog. null if not provided."
         }
 
       }

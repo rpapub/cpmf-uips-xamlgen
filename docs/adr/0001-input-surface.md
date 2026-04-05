@@ -65,9 +65,11 @@ The scaffold output describes one activity:
       "direction": "In",
       "dataType": "System.String",
       "required": true,
+      "defaultValue": null,
       "enumValues": null
     }
-  ]
+  ],
+  "slots": []
 }
 ```
 
