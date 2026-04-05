@@ -1,12 +1,14 @@
+from typing import Any
+
 SUPPORTED_CATALOG_SCHEMA_VERSION = "v0.2"
 
 
 def generate(
-    ast_doc: dict,
-    catalogs: list[dict],
+    ast_doc: dict[str, Any],
+    catalogs: list[dict[str, Any]],
     policy_file: str | None = None,
     verbose: bool = False,
-) -> dict:
+) -> dict[str, Any] | None:
     """Generate XAML from an input AST document and activity catalogs.
 
     Returns an output envelope. Null-op stub — generation not yet implemented.
