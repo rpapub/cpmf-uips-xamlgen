@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/v0.1/xamlgen-scaffold-output.schema.json",
+  "title": "XamlGen Scaffold Output",
+  "description": "Output of the scaffold step. Describes what a specific activity requires. The caller fills in each argument's 'value' field and uses the result as an ActivityNode in the generate input.",
+  "type": "object",
+  "required": ["activityId", "fullName", "displayName", "arguments"],
+  "additionalProperties": false,
+  "properties": {
+
+    "activityId": {
+      "type": "string",
+      "pattern": "^.+@.+/.+$",
+      "description": "Activity identifier as provided in the scaffold input. Echoed for traceability."
+    },
+
+    "fullName": {
+      "type": "string",
+      "description": "CLR fully-qualified type name (from catalog activity.fullName)."
+    },
+
+    "displayName": {
+      "type": "string",
+      "description": "Human-readable activity name (from catalog activity.displayName)."
+    },
+
+    "description": {
+      "type": ["string", "null"],
+      "description": "Activity description from the catalog. null if not provided."
+    },
+
+    "arguments": {
+      "type": "array",
+      "description": "Ordered list of argument descriptors. The caller fills in 'value' for each argument they wish to supply and passes the result to the generate step.",
+      "items": { "$ref": "#/$defs/ArgumentDescriptor" }
+    }
+
+  },
+
+  "$defs": {
+
+    "ArgumentDescriptor": {
+      "type": "object",
+      "required": ["name", "displayName", "direction", "dataType", "required", "value"],
+      "additionalProperties": false,
+      "properties": {
+
+        "name": {
+          "type": "string",
+          "description": "CLR property name. Use this as the key in the generate input arguments object."
+        },
+
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable argument name (from catalog member.displayName)."
+        },
+
+        "direction": {
+          "type": "string",
+          "enum": ["In", "Out", "InOut"],
+          "description": "Argument direction. In: expression string. Out: variable name to bind. InOut: expression string."
+        },
+
+        "dataType": {
+          "type": "string",
+          "description": "CLR type name of the argument (from catalog member.dataType)."
+        },
+
+        "required": {
+          "type": "boolean",
+          "description": "Whether this argument must be supplied. Derived from catalog member metadata."
+        },
+
+        "typeConverter": {
+          "type": ["string", "null"],
+          "description": "Drives XAML serialisation form. Present: attribute form. null: child element form wrapping an expression activity."
+        },
+
+        "enumValues": {
+          "type": ["array", "null"],
+          "description": "Valid values when dataType is an enum, expressed as 'EnumTypeName.MemberName'. null for non-enum types.",
+          "items": { "type": "string" }
+        },
+
+        "value": {
+          "type": "null",
+          "description": "Placeholder — always null in scaffold output. The caller replaces null with an expression string (In/InOut) or variable name (Out) before passing to the generate step."
+        }
+
+      }
+    }
+
+  }
+}

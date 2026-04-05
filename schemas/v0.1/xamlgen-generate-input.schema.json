@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/v0.1/xamlgen-generate-input.schema.json",
+  "title": "XamlGen Generate Input",
+  "description": "Input to the generate step. The caller constructs this document — typically by filling in scaffold output argument values — and passes it to the generator to produce XAML. Replaces the retired xamlgen-input.schema.json.",
+  "type": "object",
+  "required": ["expressionLanguage"],
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "required": ["root"],
+      "properties": { "workflows": false }
+    },
+    {
+      "required": ["workflows"],
+      "properties": { "root": false }
+    }
+  ],
+  "properties": {
+
+    "expressionLanguage": {
+      "type": "string",
+      "enum": ["VisualBasic", "CSharp"],
+      "description": "Expression language for all argument values in this document. Project-level setting from UiPath project.json (design.expressionLanguage). Determines which WF expression wrapper type the generator emits."
+    },
+
+    "workflows": {
+      "type": "array",
+      "description": "Full-file mode: one entry per output XAML file. Each workflow produces a complete <Activity x:Class=\"{name}\"> document.",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/WorkflowEntry" }
+    },
+
+    "root": {
+      "$ref": "#/$defs/Node",
+      "description": "Fragment mode: a single unwrapped activity or container node. No x:Class, no file wrapper."
+    }
+
+  },
+
+  "$defs": {
+
+    "WorkflowEntry": {
+      "type": "object",
+      "required": ["name", "root"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Workflow name. Maps directly to the XAML x:Class attribute."
+        },
+        "root": { "$ref": "#/$defs/Node" }
+      }
+    },
+
+    "Node": {
+      "description": "A workflow node. Discriminated by 'kind'.",
+      "oneOf": [
+        { "$ref": "#/$defs/ActivityNode" },
+        { "$ref": "#/$defs/SequenceNode" }
+      ]
+    },
+
+    "ActivityNode": {
+      "type": "object",
+      "required": ["kind", "activityId"],
+      "additionalProperties": false,
+      "properties": {
+
+        "kind": {
+          "type": "string",
+          "const": "Activity"
+        },
+
+        "activityId": {
+          "type": "string",
+          "pattern": "^.+@.+/.+$",
+          "description": "Activity identifier. Must match activity-catalog activity.id. Format: {CLRFullName}@{sourceId}/{sourceVersion}."
+        },
+
+        "arguments": {
+          "type": "object",
+          "description": "Argument values keyed by CLR property name (scaffold output ArgumentDescriptor.name). In/InOut: expression string in the document's expressionLanguage. Out: variable name to bind.",
+          "additionalProperties": { "type": "string" }
+        },
+
+        "slots": {
+          "type": "object",
+          "description": "Structural child slots for activities that accept nested nodes (e.g. Body, Then, Else). Keys are CLR property names of members with memberKind 'child'.",
+          "additionalProperties": { "$ref": "#/$defs/Node" }
+        }
+
+      }
+    },
+
+    "SequenceNode": {
+      "type": "object",
+      "required": ["kind", "children"],
+      "additionalProperties": false,
+      "properties": {
+
+        "kind": {
+          "type": "string",
+          "const": "Sequence"
+        },
+
+        "children": {
+          "type": "array",
+          "description": "Ordered child nodes executed sequentially.",
+          "items": { "$ref": "#/$defs/Node" }
+        }
+
+      }
+    }
+
+  }
+}

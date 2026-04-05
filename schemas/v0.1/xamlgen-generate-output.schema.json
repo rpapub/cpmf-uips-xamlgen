@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/v0.1/xamlgen-output.schema.json",
-  "title": "XamlGen Output Envelope",
+  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/v0.1/xamlgen-generate-output.schema.json",
+  "title": "XamlGen Generate Output Envelope",
   "description": "Output envelope returned by the XAML generator. Contains generated XAML outputs, effective policy, resolved sources, optional input provenance, and diagnostics.",
   "type": "object",
   "required": [

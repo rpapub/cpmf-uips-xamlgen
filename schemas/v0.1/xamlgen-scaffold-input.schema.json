@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/v0.1/xamlgen-scaffold-input.schema.json",
+  "title": "XamlGen Scaffold Input",
+  "description": "Input to the scaffold step. The caller provides an activityId; the tool reads the catalog and returns an argument template (scaffold output) the caller fills in before calling generate.",
+  "type": "object",
+  "required": ["activityId"],
+  "additionalProperties": false,
+  "properties": {
+    "activityId": {
+      "type": "string",
+      "pattern": "^.+@.+/.+$",
+      "description": "Activity identifier: {CLRFullName}@{sourceId}/{sourceVersion}. Must match an entry in the resolved activity catalog.",
+      "examples": [
+        "UiPath.Core.Activities.LogMessage@UiPath.System.Activities/25.10.11"
+      ]
+    }
+  }
+}
