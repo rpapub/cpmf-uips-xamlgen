@@ -84,7 +84,7 @@
 
         "enumValues": {
           "type": ["array", "null"],
-          "description": "Valid values when dataType is an enum, expressed as 'EnumTypeName.MemberName'. null for non-enum types.",
+          "description": "Valid values when dataType is an enum. For typeConverter-based arguments: unqualified member names (e.g. 'Trace', 'Info'). null for non-enum types.",
           "items": { "type": "string" }
         }
 
