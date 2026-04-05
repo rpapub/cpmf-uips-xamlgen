@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/xamlgen-policy.schema.json",
+  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/v0.1/xamlgen-policy.schema.json",
   "title": "XamlGen Policy",
   "description": "Generator policy file schema. Applied after AST resolution, before XAML serialisation. Built-in defaults live in src/cpmf_uips_xamlgen/policy/default.toml. Caller files are merged over the defaults; unknown keys are rejected.",
   "type": "object",

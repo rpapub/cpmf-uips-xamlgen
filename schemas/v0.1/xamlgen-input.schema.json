@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/xamlgen-input.schema.json",
+  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/v0.1/xamlgen-input.schema.json",
   "title": "XamlGen Input Document",
   "description": "Input document for the XAML generator. Contains a project-level expression language setting and the AST root node.",
   "type": "object",

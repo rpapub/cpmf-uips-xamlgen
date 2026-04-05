@@ -1,5 +1,5 @@
 # XamlGen default generator policy
-# Schema: schemas/xamlgen-policy.schema.json
+# Schema: schemas/v0.1/xamlgen-policy.schema.json
 # All values here are the built-in defaults shipped with the package.
 # Callers may supply their own policy file; it is merged over these defaults.
 
