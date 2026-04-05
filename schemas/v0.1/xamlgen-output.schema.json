@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/v0.1/xamlgen-output.schema.json",
   "title": "XamlGen Output Envelope",
-  "description": "Output envelope returned by the XAML generator. Contains the generated XAML, effective policy, resolved sources, optional input provenance, and diagnostics.",
+  "description": "Output envelope returned by the XAML generator. Contains generated XAML outputs, effective policy, resolved sources, optional input provenance, and diagnostics.",
   "type": "object",
   "required": [
     "schemaVersion",
@@ -10,7 +10,7 @@
     "generatedAt",
     "status",
     "expressionLanguage",
-    "xaml",
+    "outputs",
     "effectivePolicy",
     "resolvedSources",
     "inputProvenance",
@@ -50,9 +50,10 @@
       "description": "Expression language used during generation. Echoed from the input document for observability."
     },
 
-    "xaml": {
-      "type": ["string", "null"],
-      "description": "Generated XAML string. null when status is Failed."
+    "outputs": {
+      "type": ["array", "null"],
+      "description": "Generated XAML outputs. null when status is Failed. Fragment mode: one entry with name=null. Full-file mode: one entry per workflow.",
+      "items": { "$ref": "#/$defs/XamlOutput" }
     },
 
     "effectivePolicy": {
@@ -62,7 +63,7 @@
 
     "resolvedSources": {
       "type": "array",
-      "description": "Engine-result files actually consulted during this generation run.",
+      "description": "Activity-catalog files actually consulted during this generation run. Sourced from catalog.source.id and catalog.source.version.",
       "items": { "$ref": "#/$defs/ResolvedSource" }
     },
 
@@ -84,13 +85,29 @@
 
   "$defs": {
 
+    "XamlOutput": {
+      "type": "object",
+      "required": ["name", "xaml"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": ["string", "null"],
+          "description": "Workflow name (matches workflows[].name from input). null in fragment mode."
+        },
+        "xaml": {
+          "type": "string",
+          "description": "Generated XAML string. Complete <Activity x:Class=\"...\"> document in full-file mode; unwrapped element in fragment mode."
+        }
+      }
+    },
+
     "ResolvedSource": {
       "type": "object",
       "required": ["sourceId", "resolvedVersion"],
       "additionalProperties": false,
       "properties": {
-        "sourceId":        { "type": "string", "minLength": 1, "description": "NuGet package id." },
-        "resolvedVersion": { "type": "string", "minLength": 1, "description": "Exact resolved version actually used." }
+        "sourceId":        { "type": "string", "minLength": 1, "description": "NuGet package id (catalog source.id)." },
+        "resolvedVersion": { "type": "string", "minLength": 1, "description": "Exact resolved version actually used (catalog source.version)." }
       }
     },
 
@@ -114,7 +131,7 @@
         "activityId": {
           "type": "string",
           "pattern": "^.+@.+/.+$",
-          "description": "PackageFurnace activity id as provided in the input AST."
+          "description": "Activity-catalog activity id as provided in the input AST."
         },
         "resolvedFrom": { "$ref": "#/$defs/ResolvedSource" }
       }
