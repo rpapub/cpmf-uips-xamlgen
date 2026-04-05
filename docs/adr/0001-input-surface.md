@@ -1,104 +1,143 @@
 # ADR-0001: Input Surface
 
-**Status**: Accepted (revised — multi-workflow and full XAML file generation added)
+**Status**: Revised — two-step model replaces tool-owned AST
 
 ## Context
 
-This generator is a **headless UiPath Studio designer**: it performs the same pipeline Studio performs interactively — activity resolution, argument binding, namespace mapping, XAML serialisation — but in batch, without a UI. Output must be byte-for-byte compatible with Studio-produced XAML.
+Earlier versions of this ADR defined the generator's input as a tool-owned "AST light" format
+(`ActivityNode`, `SequenceNode`, generation modes). That was wrong: the **AST is the caller's
+responsibility**. The tool's job is to help callers build a valid AST (scaffold step) and then
+consume it (generate step).
 
-The generator scope includes **full `.xaml` file generation**: a single input document may describe multiple named workflows, each producing one complete XAML file. It also supports **fragment mode** — emitting a single unwrapped activity or sequence element without a file wrapper.
-
-### Expression language
-
-Activity arguments in WF XAML are not plain values — they are **expressions** evaluated at runtime by either the VB or C# expression evaluator. The target language is a project-level setting in UiPath (`project.json` → `design.expressionLanguage`), not per-activity. It determines which expression wrapper type the serialiser emits (`VisualBasicValue<T>` vs `CSharpValue<T>`).
-
-Argument values in the input AST are treated as **expression strings in the target language**. The generator does not interpret expression content — it passes it through to the appropriate WF expression activity.
-
-Serialisation form (XML attribute vs. child element wrapping) is determined by the `typeConverter` field on the activity-catalog `member`:
-- `typeConverter` present → attribute form
-- `typeConverter` absent → child element form wrapping the expression in `InArgument<T>` + expression activity
+The generator operates as a **headless UiPath Studio designer** — it performs activity resolution,
+argument binding, namespace mapping, and XAML serialisation without a UI. Output must be
+compatible with Studio-produced XAML.
 
 ## Decision
 
-### Generation modes
+### Two-step model
 
-Two mutually exclusive modes, selected by which top-level key is present in the input document:
+The tool exposes two distinct operations:
 
-| Mode | Key | Output |
+| Step | Input | Output |
 |---|---|---|
-| **Full-file** | `workflows[]` | One complete `<Activity x:Class="...">` XAML document per workflow entry |
-| **Fragment** | `root` | Single unwrapped XML element or tree; no `x:Class`, no file wrapper |
+| **Scaffold** | `activityId` + catalog | Argument template — describes what the activity requires; `value: null` slots for the caller to fill |
+| **Generate** | Filled argument template(s) + catalog | XAML output envelope |
 
-### Input document structure
+The scaffold step is **support infrastructure**: it reads the catalog and returns a structured
+description of an activity's arguments (names, directions, types, required/optional, enum values).
+The caller uses this to construct their generate input. They are not required to use scaffold — it
+exists to prevent callers from having to read the catalog schema directly.
 
-```json
+### Schemas
+
+Each step has a dedicated input and output schema (all under `schemas/v0.1/`):
+
+| Schema | Purpose |
+|---|---|
+| `xamlgen-scaffold-input.schema.json` | Scaffold input: `activityId` only |
+| `xamlgen-scaffold-output.schema.json` | Scaffold output: `ArgumentDescriptor[]` with `value: null` |
+| `xamlgen-generate-input.schema.json` | Generate input: filled nodes + `expressionLanguage` |
+| `xamlgen-generate-output.schema.json` | Generate output: XAML envelope (see ADR-0003) |
+
+### Scaffold output
+
+The scaffold output describes one activity:
+
+```jsonc
 {
-  "expressionLanguage": "VisualBasic",
-  "workflows": [
-    { "name": "Main",               "root": { "kind": "Sequence", "children": [...] } },
-    { "name": "GetTransactionData", "root": { "kind": "Activity", "activityId": "..." } }
+  "activityId": "UiPath.Core.Activities.LogMessage@UiPath.System.Activities/25.10.11",
+  "fullName": "UiPath.Core.Activities.LogMessage",
+  "displayName": "Log Message",
+  "description": "Logs a message at the specified level.",
+  "arguments": [
+    {
+      "name": "Level",
+      "displayName": "Log Level",
+      "direction": "In",
+      "dataType": "UiPath.Core.Activities.LogLevel",
+      "required": true,
+      "typeConverter": null,
+      "enumValues": ["LogLevel.Trace", "LogLevel.Info", "LogLevel.Warn", "LogLevel.Error"],
+      "value": null        // ← caller fills this in
+    },
+    {
+      "name": "Message",
+      "displayName": "Message",
+      "direction": "In",
+      "dataType": "System.String",
+      "required": true,
+      "typeConverter": "InArgument`1",
+      "enumValues": null,
+      "value": null        // ← caller fills this in
+    }
   ]
 }
 ```
 
-Or fragment mode:
+### Generate input
 
-```json
+The caller constructs this document — typically by filling in scaffold output values:
+
+```jsonc
 {
   "expressionLanguage": "VisualBasic",
-  "root": { "kind": "Activity", "activityId": "...", "arguments": {} }
-}
-```
-
-- `expressionLanguage` is required in both modes and applies to all argument values.
-- `workflows[].name` maps directly to the XAML `x:Class` attribute.
-- `workflows[]` and `root` must not both be present.
-
-### Node kinds
-
-| Kind | Description | v0.1 |
-|---|---|---|
-| `Activity` | Leaf or scope-container; has `activityId`, `arguments`, optional `slots` | implemented |
-| `Sequence` | Ordered container; has `children[]` | implemented |
-| `Flowchart` | Graph-based container | reserved, not implemented |
-| `StateMachine` | State/transition container | reserved, not implemented |
-
-### Activity node
-
-```json
-{
-  "kind": "Activity",
-  "activityId": "{fullName}@{source.id}/{source.version}",
-  "arguments": {
-    "Level": "LogLevel.Info",
-    "Message": "\"Hello World\""
-  },
-  "slots": {
-    "Body": { "kind": "Sequence", "children": [] }
+  "root": {
+    "kind": "Activity",
+    "activityId": "UiPath.Core.Activities.LogMessage@UiPath.System.Activities/25.10.11",
+    "arguments": {
+      "Level": "LogLevel.Info",
+      "Message": "\"Hello World\""
+    }
   }
 }
 ```
 
-- `activityId` follows the activity-catalog `activity.id` format exactly.
-- `arguments` keys are CLR property names (`member.name` in the activity-catalog).
-- `arguments` values are expression strings in the document's `expressionLanguage`.
-- `slots` keys are CLR property names of members with `memberKind: child`.
+Or full-file mode (multiple named workflows → one XAML file each):
 
-### Sequence node
-
-```json
+```jsonc
 {
-  "kind": "Sequence",
-  "children": [
-    { "kind": "Activity", "activityId": "...", "arguments": {} }
+  "expressionLanguage": "VisualBasic",
+  "workflows": [
+    { "name": "Main", "root": { "kind": "Sequence", "children": [...] } }
   ]
 }
 ```
 
+### Expression language
+
+Activity arguments in WF XAML are **expressions** evaluated at runtime by either the VB or C#
+evaluator. The target language is a project-level setting (`project.json` →
+`design.expressionLanguage`), not per-activity. The caller declares it once at the top of the
+generate input document.
+
+Argument values in the generate input are expression strings in the declared language. The
+generator passes them through to the appropriate WF expression activity without interpreting them.
+
+Serialisation form (XML attribute vs. child element) is determined by `typeConverter` on the
+catalog member — exposed in the scaffold output so the caller has full visibility, but handled
+automatically by the generator.
+
+### Node kinds
+
+The generate input supports the following node kinds (discriminated by `kind`):
+
+| Kind | v0.1 |
+|---|---|
+| `Activity` | implemented |
+| `Sequence` | implemented |
+| `Flowchart` | reserved |
+| `StateMachine` | reserved |
+
+Container activities that accept nested nodes (e.g. `Body`, `Then`, `Else`) use the `slots` map
+on `ActivityNode`, keyed by the CLR property name of the member.
+
 ## Consequences
 
-- `expressionLanguage` is explicit and required — the generator never guesses the target language.
-- `workflows[].name` supplies `x:Class` — no separate mechanism needed.
-- Fragment mode and full-file mode are unambiguous from the document structure.
-- The node kind set is stable: adding `Flowchart` or `StateMachine` requires no changes to `Activity` or `Sequence` nodes.
-- The generator validates `activityId` and argument names against the supplied activity-catalog data and rejects unknown identifiers.
+- The tool does not own the AST format. Callers construct their own generate input; scaffold
+  provides guided support, not a mandatory contract.
+- `expressionLanguage` is explicit and required in the generate input — the generator never guesses.
+- Scaffold output and generate input are co-designed: `ArgumentDescriptor.name` is the key used
+  in `ActivityNode.arguments`. Callers do not need to know the catalog schema to use the tool.
+- Adding new node kinds (`Flowchart`, `StateMachine`) requires no changes to `Activity` or
+  `Sequence` nodes.

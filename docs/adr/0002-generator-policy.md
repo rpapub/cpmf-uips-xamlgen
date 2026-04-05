@@ -1,6 +1,6 @@
 # ADR-0002: Opinionated GeneratorPolicy and Caller Overrides
 
-**Status**: Accepted
+**Status**: Accepted (revised — Config/Policy split; updated code example)
 
 ## Context
 
@@ -8,9 +8,16 @@ XAML attributes such as `DisplayName`, annotations, and designer layout hints ar
 
 The generator must be **opinionated by default** — it fills in these values automatically — while remaining **overridable** by callers that have specific requirements.
 
+### Config vs Policy
+
+Two distinct caller-configurable layers exist:
+
+- **Config** — operational/infrastructure concerns: where to find catalogs, resolution strategy, semver fallback. Defined in a separate Config file and covered by its own defaults. See `schemas/v0.1/xamlgen-config.schema.json`.
+- **Policy** — generation opinions: display name format, annotation behaviour, rendering choices. This ADR covers Policy only.
+
 ## Decision
 
-Generator behaviour that is not driven by the caller's AST input is encapsulated in a `GeneratorPolicy` object, loaded from a **policy file** (TOML or JSON). Policies are applied after AST resolution and before XAML serialisation.
+Generator behaviour that is not driven by the caller's generate input is encapsulated in a `GeneratorPolicy` object, loaded from a **policy file** (TOML). Policies are applied after catalog resolution and before XAML serialisation.
 
 ### Policy file resolution order
 
@@ -41,7 +48,7 @@ Callers may override individual policy fields; they may not disable the policy m
 The caller optionally passes a path to their own policy file. Unknown keys are rejected.
 
 ```python
-generate(ast, engine_results, policy_file="/path/to/my-policy.toml")
+generate(ast_doc, catalogs, policy_file="/path/to/my-policy.toml")
 ```
 
 The caller's file is merged over the built-in defaults: only keys present in the caller's file are overridden. All other policies remain at their built-in defaults.
