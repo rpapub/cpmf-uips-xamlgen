@@ -1,0 +1,11 @@
+# XamlGen default operational config
+# Schema: schemas/v0.1/xamlgen-config.schema.json
+# All values here are the built-in defaults shipped with the package.
+# Callers may supply their own config file; it is merged over these defaults.
+
+[resolution]
+# semver: try exact match first, then latest compatible patch, then latest compatible minor.
+# exact: require an exact version match; raise an error if not found.
+strategy = "semver"
+
+# catalogSources = []  # empty by default — callers must configure sources or use --catalog

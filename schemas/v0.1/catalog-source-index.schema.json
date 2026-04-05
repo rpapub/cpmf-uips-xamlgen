@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/v0.1/catalog-source-index.schema.json",
+  "title": "Catalog Source Index",
+  "description": "Version index served at {baseUrl}/{sourceId}/index.json. Lists all available catalog versions for a given package at this source.",
+  "type": "object",
+  "required": ["versions"],
+  "additionalProperties": false,
+  "properties": {
+    "versions": {
+      "description": "List of available version strings for this sourceId.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "examples": [
+    {"versions": ["25.10.11", "25.10.9", "25.9.5"]}
+  ]
+}

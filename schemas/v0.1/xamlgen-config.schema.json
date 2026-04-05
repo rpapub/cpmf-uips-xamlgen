@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/v0.1/xamlgen-config.schema.json",
+  "title": "XamlGen Config",
+  "description": "Operational configuration for the XAML generator: catalog sources and resolution strategy.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "catalogSources": {
+      "description": "Ordered list of catalog sources. Resolution tries each source in order.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/CatalogSource" },
+      "default": []
+    },
+    "resolution": {
+      "description": "Catalog version resolution settings.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "strategy": {
+          "description": "Version resolution strategy. 'exact' requires an exact version match. 'semver' falls back to latest compatible patch, then latest compatible minor.",
+          "type": "string",
+          "enum": ["exact", "semver"],
+          "default": "semver"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "CatalogSource": {
+      "type": "object",
+      "required": ["kind", "path"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "description": "Source type. 'local' = filesystem directory. 'url' = HTTP base URL.",
+          "type": "string",
+          "enum": ["local", "url"]
+        },
+        "path": {
+          "description": "For 'local': absolute or relative directory path. For 'url': base URL (no trailing slash).",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
