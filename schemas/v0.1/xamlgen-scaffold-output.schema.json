@@ -71,6 +71,11 @@
           "description": "Whether this argument must be supplied in the generate input."
         },
 
+        "defaultValue": {
+          "type": ["string", "null"],
+          "description": "Default value as an expression string, as it would appear in the generate input. null if the catalog does not define a default."
+        },
+
         "enumValues": {
           "type": ["array", "null"],
           "description": "Valid values when dataType is an enum, expressed as 'EnumTypeName.MemberName'. null for non-enum types.",
