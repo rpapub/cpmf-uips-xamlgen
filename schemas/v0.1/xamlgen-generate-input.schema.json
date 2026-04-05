@@ -105,10 +105,40 @@
           "const": "Sequence"
         },
 
+        "variables": {
+          "type": "array",
+          "description": "Variables scoped to this Sequence. Declared as Sequence.Variables in XAML. Binding targets for Out arguments within this scope.",
+          "items": { "$ref": "#/$defs/VariableDeclaration" }
+        },
+
         "children": {
           "type": "array",
           "description": "Ordered child nodes executed sequentially.",
           "items": { "$ref": "#/$defs/Node" }
+        }
+
+      }
+    },
+
+    "VariableDeclaration": {
+      "type": "object",
+      "required": ["name", "dataType"],
+      "additionalProperties": false,
+      "properties": {
+
+        "name": {
+          "type": "string",
+          "description": "Variable name. Used as the value in Out argument bindings within this Sequence's scope."
+        },
+
+        "dataType": {
+          "type": "string",
+          "description": "CLR type string (e.g. 'System.String', 'System.Data.DataTable'). Generator maps to x:TypeArguments via namespaceMappings."
+        },
+
+        "defaultValue": {
+          "type": ["string", "null"],
+          "description": "Optional default value as an expression string in the document's expressionLanguage. null if no default."
         }
 
       }

@@ -130,6 +130,31 @@ The generate input supports the following node kinds (discriminated by `kind`):
 Container activities that accept nested nodes (e.g. `Body`, `Then`, `Else`) use the `slots` map
 on `ActivityNode`, keyed by the CLR property name of the member.
 
+A `SequenceNode` may declare variables scoped to its body:
+
+```jsonc
+{
+  "kind": "Sequence",
+  "variables": [
+    { "name": "AssetValue", "dataType": "System.Object" }
+  ],
+  "children": [
+    {
+      "kind": "Activity",
+      "activityId": "UiPath.Core.Activities.GetRobotAsset@UiPath.System.Activities/25.10.11",
+      "arguments": {
+        "AssetName": "row(\"Asset\").ToString",
+        "Value": "AssetValue"
+      }
+    }
+  ]
+}
+```
+
+`variables` is optional. Variable names in Out argument bindings must match a `variables[].name`
+in the enclosing scope. The generator emits `Sequence.Variables` with `<Variable x:TypeArguments="...">`
+elements, resolving the CLR `dataType` to the correct namespace prefix via `namespaceMappings`.
+
 ## Consequences
 
 - The tool does not own the AST format. Callers construct their own generate input; scaffold
