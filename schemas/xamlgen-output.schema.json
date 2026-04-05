@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/xamlgen-output.schema.json",
+  "title": "XamlGen Output Envelope",
+  "description": "Output envelope returned by the XAML generator. Contains the generated XAML, effective policy, resolved sources, optional input provenance, and diagnostics.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "invocationId",
+    "generatedAt",
+    "status",
+    "xaml",
+    "effectivePolicy",
+    "resolvedSources",
+    "inputProvenance",
+    "diagnostics"
+  ],
+  "additionalProperties": false,
+  "properties": {
+
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+$",
+      "description": "Integer encoded as string. Increment on breaking changes.",
+      "examples": ["1"]
+    },
+
+    "invocationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique per generator call."
+    },
+
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp of this generator call. ISO 8601."
+    },
+
+    "status": {
+      "type": "string",
+      "enum": ["Success", "PartialSuccess", "Failed"],
+      "description": "Overall generation outcome."
+    },
+
+    "xaml": {
+      "type": ["string", "null"],
+      "description": "Generated XAML string. null when status is Failed."
+    },
+
+    "effectivePolicy": {
+      "$ref": "xamlgen-policy.schema.json",
+      "description": "Full merged policy object actually applied. Always the complete resolved state — built-in defaults overlaid with any caller overrides."
+    },
+
+    "resolvedSources": {
+      "type": "array",
+      "description": "Engine-result files actually consulted during this generation run.",
+      "items": { "$ref": "#/$defs/ResolvedSource" }
+    },
+
+    "inputProvenance": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/InputProvenance" }
+      ],
+      "description": "null when verbose=False (default). Populated with per-activity resolution trace when verbose=True."
+    },
+
+    "diagnostics": {
+      "type": "array",
+      "description": "Generation diagnostics. Empty array when none.",
+      "items": { "$ref": "#/$defs/Diagnostic" }
+    }
+
+  },
+
+  "$defs": {
+
+    "ResolvedSource": {
+      "type": "object",
+      "required": ["sourceId", "resolvedVersion"],
+      "additionalProperties": false,
+      "properties": {
+        "sourceId":        { "type": "string", "minLength": 1, "description": "NuGet package id." },
+        "resolvedVersion": { "type": "string", "minLength": 1, "description": "Exact resolved version actually used." }
+      }
+    },
+
+    "InputProvenance": {
+      "type": "object",
+      "required": ["activities"],
+      "additionalProperties": false,
+      "properties": {
+        "activities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ActivityProvenance" }
+        }
+      }
+    },
+
+    "ActivityProvenance": {
+      "type": "object",
+      "required": ["activityId", "resolvedFrom"],
+      "additionalProperties": false,
+      "properties": {
+        "activityId": {
+          "type": "string",
+          "pattern": "^.+@.+/.+$",
+          "description": "PackageFurnace activity id as provided in the input AST."
+        },
+        "resolvedFrom": { "$ref": "#/$defs/ResolvedSource" }
+      }
+    },
+
+    "Diagnostic": {
+      "type": "object",
+      "required": ["level", "stage", "message", "context"],
+      "additionalProperties": false,
+      "properties": {
+        "level":   { "type": "string", "enum": ["Info", "Warning", "Error"] },
+        "stage":   { "type": "string", "enum": ["Resolution", "Generation", "PolicyApplication"] },
+        "message": { "type": "string", "minLength": 1, "description": "Human-readable. Must not be machine-parsed." },
+        "context": { "type": ["string", "null"], "description": "Optional qualifier. null = absent." }
+      }
+    }
+
+  }
+}
