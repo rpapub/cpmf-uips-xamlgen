@@ -20,17 +20,17 @@ def load_input(value: str) -> dict:
 
 @app.command()
 def main(
-    ast: str = typer.Argument(..., help="Input AST: .json path, .toml path, or inline JSON string"),
-    engine_results: list[str] = typer.Option(..., "--engine-result", "-e", help="Engine-result: .json path or inline JSON (repeatable)"),
+    ast: str = typer.Argument(..., help="Input AST document: .json path, .toml path, or inline JSON string"),
+    catalogs: list[str] = typer.Option(..., "--catalog", "-c", help="Activity catalog: .json path or inline JSON (repeatable)"),
     policy_file: Path | None = typer.Option(None, "--policy", help="Policy TOML file (merged over built-in defaults)"),
     output: Path | None = typer.Option(None, "--output", "-o", help="Output file (default: stdout)"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Include inputProvenance in output envelope"),
 ):
-    ast_data = load_input(ast)
-    results = [load_input(r) for r in engine_results]
+    ast_doc = load_input(ast)
+    catalog_list = [load_input(c) for c in catalogs]
     policy_path = str(policy_file) if policy_file else None
 
-    envelope = generate(ast_data, results, policy_file=policy_path, verbose=verbose)
+    envelope = generate(ast_doc, catalog_list, policy_file=policy_path, verbose=verbose)
 
     out = json.dumps(envelope, indent=2)
     if output:

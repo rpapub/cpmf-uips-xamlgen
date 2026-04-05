@@ -1,0 +1,76 @@
+{
+  "schema": { "id": "activity-catalog", "version": "v0.2" },
+  "source": {
+    "kind": "nuget-package",
+    "id": "UiPath.System.Activities",
+    "version": "25.10.11",
+    "feedUrl": null,
+    "authors": "UiPath",
+    "projectUrl": null,
+    "description": "Synthetic fixture for unit tests.",
+    "license": null,
+    "tags": null,
+    "packageTypes": []
+  },
+  "generatedAt": "2026-01-01T00:00:00Z",
+  "activities": [
+    {
+      "id": "UiPath.Core.Activities.LogMessage@UiPath.System.Activities/25.10.11",
+      "fullName": "UiPath.Core.Activities.LogMessage",
+      "displayName": "Log Message",
+      "description": "Logs a message at the specified level.",
+      "category": "App Integration",
+      "visibility": "browsable",
+      "hasGenericParameters": false,
+      "genericParameterNames": [],
+      "members": [
+        {
+          "name": "Level",
+          "displayName": "Log Level",
+          "dataType": "UiPath.Core.Activities.LogLevel",
+          "memberKind": "argument",
+          "argumentDirection": "in",
+          "isRequiredArgument": true,
+          "description": null,
+          "category": "Input",
+          "defaultValue": null,
+          "typeConverter": "UiPath.Core.Activities.LogLevelConverter"
+        },
+        {
+          "name": "Message",
+          "displayName": "Message",
+          "dataType": "System.Activities.InArgument<System.String>",
+          "memberKind": "argument",
+          "argumentDirection": "in",
+          "isRequiredArgument": false,
+          "description": null,
+          "category": "Input",
+          "defaultValue": null,
+          "typeConverter": null
+        }
+      ],
+      "enrichment": null
+    }
+  ],
+  "enums": [
+    {
+      "fullName": "UiPath.Core.Activities.LogLevel",
+      "underlyingType": "System.Int32",
+      "members": [
+        { "name": "Trace", "value": 16 },
+        { "name": "Info",  "value": 8  },
+        { "name": "Warn",  "value": 4  },
+        { "name": "Error", "value": 2  },
+        { "name": "Fatal", "value": 1  }
+      ]
+    }
+  ],
+  "namespaceMappings": [
+    {
+      "xmlNamespace": "http://schemas.uipath.com/workflow/activities",
+      "prefix": "ui",
+      "clrNamespaces": ["UiPath.Core.Activities"],
+      "sourceAssembly": "UiPath.Core.Activities"
+    }
+  ]
+}

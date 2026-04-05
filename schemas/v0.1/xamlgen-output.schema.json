@@ -10,6 +10,7 @@
     "generatedAt",
     "status",
     "expressionLanguage",
+    "catalogSchemaVersion",
     "outputs",
     "effectivePolicy",
     "resolvedSources",
@@ -48,6 +49,11 @@
       "type": "string",
       "enum": ["VisualBasic", "CSharp"],
       "description": "Expression language used during generation. Echoed from the input document for observability."
+    },
+
+    "catalogSchemaVersion": {
+      "type": "string",
+      "description": "Activity-catalog schema version the generator validated and consumed. Matches the generator's SUPPORTED_CATALOG_SCHEMA_VERSION constant. Consumers can use this to detect generator/catalog version skew."
     },
 
     "outputs": {
