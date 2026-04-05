@@ -1,0 +1,12 @@
+# XamlGen default generator policy
+# Schema: schemas/xamlgen-policy.schema.json
+# All values here are the built-in defaults shipped with the package.
+# Callers may supply their own policy file; it is merged over these defaults.
+
+[displayName]
+# shortName_hash8: last segment of the CLR fullName + "_" + 8-hex-char hash of activityId
+pattern = "shortName_hash8"
+
+[annotation]
+# Annotation element is always emitted, even when no content is supplied by the caller
+alwaysEmit = true

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/xamlgen-policy.schema.json",
+  "title": "XamlGen Policy",
+  "description": "Generator policy file schema. Applied after AST resolution, before XAML serialisation. Built-in defaults live in src/cpmf_uips_xamlgen/policy/default.toml. Caller files are merged over the defaults; unknown keys are rejected.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+
+    "displayName": {
+      "type": "object",
+      "description": "Controls how DisplayName is set on generated activities.",
+      "additionalProperties": false,
+      "required": ["pattern"],
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "enum": ["shortName_hash8"],
+          "description": "shortName_hash8: last segment of fullName + underscore + 8-hex-char hash of activityId."
+        }
+      }
+    },
+
+    "annotation": {
+      "type": "object",
+      "description": "Controls annotation element emission.",
+      "additionalProperties": false,
+      "required": ["alwaysEmit"],
+      "properties": {
+        "alwaysEmit": {
+          "type": "boolean",
+          "description": "When true, annotation element is always written even if no content is supplied."
+        }
+      }
+    }
+
+  }
+}

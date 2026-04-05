@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/xamlgen-input.schema.json",
+  "title": "XamlGen Input AST",
+  "description": "Recursive AST describing the workflow or workflow fragment to generate. The root may be any node kind, including a bare Activity.",
+  "oneOf": [
+    { "$ref": "#/$defs/ActivityNode" },
+    { "$ref": "#/$defs/SequenceNode" }
+  ],
+
+  "$defs": {
+
+    "ActivityNode": {
+      "type": "object",
+      "description": "A single activity. May be a leaf or a scope-container when slots are present.",
+      "required": ["kind", "activityId"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "type": "string", "const": "Activity" },
+        "activityId": {
+          "type": "string",
+          "pattern": "^.+@.+/.+$",
+          "description": "PackageFurnace activity id: {fullName}@{sourceId}/{sourceVersion}."
+        },
+        "arguments": {
+          "type": "object",
+          "description": "Argument values keyed by CLR property name (Member.name). Values are expression strings.",
+          "additionalProperties": { "type": "string" }
+        },
+        "slots": {
+          "type": "object",
+          "description": "Named child positions keyed by CLR property name of Child members. Each value is a nested AST node.",
+          "additionalProperties": {
+            "oneOf": [
+              { "$ref": "#/$defs/ActivityNode" },
+              { "$ref": "#/$defs/SequenceNode" }
+            ]
+          }
+        }
+      }
+    },
+
+    "SequenceNode": {
+      "type": "object",
+      "description": "An ordered container of child nodes.",
+      "required": ["kind", "children"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "type": "string", "const": "Sequence" },
+        "children": {
+          "type": "array",
+          "description": "Ordered list of child AST nodes.",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/ActivityNode" },
+              { "$ref": "#/$defs/SequenceNode" }
+            ]
+          }
+        }
+      }
+    }
+
+  }
+}
