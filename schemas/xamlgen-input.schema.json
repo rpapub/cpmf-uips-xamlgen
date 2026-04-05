@@ -1,12 +1,28 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/rpapub/cpmf-uips-xamlgen/schemas/xamlgen-input.schema.json",
-  "title": "XamlGen Input AST",
-  "description": "Recursive AST describing the workflow or workflow fragment to generate. The root may be any node kind, including a bare Activity.",
-  "oneOf": [
-    { "$ref": "#/$defs/ActivityNode" },
-    { "$ref": "#/$defs/SequenceNode" }
-  ],
+  "title": "XamlGen Input Document",
+  "description": "Input document for the XAML generator. Contains a project-level expression language setting and the AST root node.",
+  "type": "object",
+  "required": ["expressionLanguage", "root"],
+  "additionalProperties": false,
+  "properties": {
+
+    "expressionLanguage": {
+      "type": "string",
+      "enum": ["VisualBasic", "CSharp"],
+      "description": "Target expression language for all argument values in this document. Derived from project.json design.expressionLanguage. Determines which WF expression wrapper is emitted (VisualBasicValue<T> vs CSharpValue<T>)."
+    },
+
+    "root": {
+      "description": "The AST root node. May be any node kind, including a bare Activity.",
+      "oneOf": [
+        { "$ref": "#/$defs/ActivityNode" },
+        { "$ref": "#/$defs/SequenceNode" }
+      ]
+    }
+
+  },
 
   "$defs": {
 
@@ -24,12 +40,12 @@
         },
         "arguments": {
           "type": "object",
-          "description": "Argument values keyed by CLR property name (Member.name). Values are expression strings.",
+          "description": "Argument values keyed by CLR property name (Member.name). Values are expression strings in the document's expressionLanguage. The generator does not parse or validate expression syntax — values are passed through to the WF expression activity.",
           "additionalProperties": { "type": "string" }
         },
         "slots": {
           "type": "object",
-          "description": "Named child positions keyed by CLR property name of Child members. Each value is a nested AST node.",
+          "description": "Named child positions keyed by CLR property name of Child members (memberKind: Child in engine-result). Each value is a nested AST node.",
           "additionalProperties": {
             "oneOf": [
               { "$ref": "#/$defs/ActivityNode" },

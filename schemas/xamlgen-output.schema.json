@@ -9,6 +9,7 @@
     "invocationId",
     "generatedAt",
     "status",
+    "expressionLanguage",
     "xaml",
     "effectivePolicy",
     "resolvedSources",
@@ -41,6 +42,12 @@
       "type": "string",
       "enum": ["Success", "PartialSuccess", "Failed"],
       "description": "Overall generation outcome."
+    },
+
+    "expressionLanguage": {
+      "type": "string",
+      "enum": ["VisualBasic", "CSharp"],
+      "description": "Expression language used during generation. Echoed from the input document for observability."
     },
 
     "xaml": {
