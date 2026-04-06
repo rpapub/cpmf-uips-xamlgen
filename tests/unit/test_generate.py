@@ -1,5 +1,6 @@
 import pytest
 from conftest import load_catalog
+
 from cpmf_uips_xamlgen import generate
 from cpmf_uips_xamlgen.generator import SUPPORTED_CATALOG_SCHEMA_VERSION
 
